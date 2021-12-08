@@ -8,10 +8,10 @@ from kombu import Exchange
 from mozillapulse.config import PulseConfiguration
 from mozillapulse.consumers import GenericConsumer
 from queue import Queue, Empty
-from pulsebot.logging import get_logger
+import logging
 
 
-logger = get_logger(__name__)
+logger = logging.getLogger(__name__)
 
 
 class PulseConsumer(GenericConsumer):

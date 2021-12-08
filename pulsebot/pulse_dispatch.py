@@ -20,10 +20,10 @@ from pulsebot.bugzilla import (
 )
 from pulsebot.pulse_hgpushes import PulseHgPushes
 from pulsebot.config import DispatchConfig
-from pulsebot.logging import get_logger
+import logging
 
 
-logger = get_logger(__name__)
+logger = logging.getLogger(__name__)
 
 REVLINK_RE = re.compile("/rev/[^/]*$")
 

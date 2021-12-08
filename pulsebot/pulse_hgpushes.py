@@ -10,10 +10,10 @@ import traceback
 import unittest
 from collections import OrderedDict
 from pulsebot.pulse import PulseListener
-from pulsebot.logging import get_logger
+import logging
 
 
-logger = get_logger(__name__)
+logger = logging.getLogger(__name__)
 
 
 class PulseHgPushes(PulseListener):
