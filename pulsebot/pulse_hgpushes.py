@@ -5,12 +5,15 @@
 
 from __future__ import unicode_literals
 
-import logging
 import requests
 import traceback
 import unittest
 from collections import OrderedDict
 from pulsebot.pulse import PulseListener
+from pulsebot.logging import get_logger
+
+
+logger = get_logger(__name__)
 
 
 class PulseHgPushes(PulseListener):
@@ -31,6 +34,7 @@ class PulseHgPushes(PulseListener):
     @staticmethod
     def get_pushes_info(pulse_message):
         # Sanity checks
+        logger.info('get_pushes_info')
         try:
             payload = pulse_message.get("payload", {})
             pushes = payload.get("pushlog_pushes")
@@ -43,12 +47,11 @@ class PulseHgPushes(PulseListener):
             push_url = push.get("push_full_json_url")
             if not push_url:
                 continue
-
+            logger.info(f'get_push_info_from: {push_url}')
             try:
                 for data in PulseHgPushes.get_push_info_from(push_url):
                     yield data
             except Exception:
-                logger = logging.getLogger("pulsebot.hgpushes")
                 logger.error("Failure on %s", push_url)
                 for line in traceback.format_exc().splitlines():
                     logger.debug(line)

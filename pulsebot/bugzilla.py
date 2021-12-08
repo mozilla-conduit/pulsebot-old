@@ -4,10 +4,16 @@
 
 import json
 import requests
+from pulsebot.logging import get_logger
+
+
+logger = get_logger(__name__)
 
 
 class BugzillaError(Exception):
-    pass
+    def __init__(self, *args: object) -> None:
+        if args:
+            logger.warn(f"BugzillaError: {args[0]}")
 
 
 class Bugzilla(object):
@@ -21,8 +27,9 @@ class Bugzilla(object):
         bug_url = "%s/rest/bug/%d?include_fields=%s" % (
             self._server,
             bug,
-            "+".join(fields),
+            ",".join(fields),
         )
+        logger.info(f"get_fields: {bug_url}")
         try:
             r = self._session.get(bug_url)
             r.raise_for_status()
@@ -38,15 +45,20 @@ class Bugzilla(object):
     def get_comments(self, bug):
         bug_url = "%s/rest/bug/%d/comment?include_fields=text" % (self._server, bug)
 
+        logger.info(f"get_comments: {bug_url}")
         try:
             r = self._session.get(bug_url)
             r.raise_for_status()
             bug_data = r.json()
-        except Exception:
-            raise BugzillaError()
+        except Exception as error:
+            raise BugzillaError(
+                f"Error occurred retrieving comments for {bug_url} {error}"
+            )
 
         if "error" in bug_data:
-            raise BugzillaError()
+            raise BugzillaError(
+                f"Error occurred retrieving comments for {bug_url} {bug_data.error}"
+            )
 
         comments = bug_data["bugs"].get("%d" % bug, {}).get("comments", [])
         return [c.get("text", "") for c in comments]
@@ -54,6 +66,7 @@ class Bugzilla(object):
     def post_comment(self, bug, comment):
         try:
             post_url = "%s/rest/bug/%d/comment" % (self._server, bug)
+            logger.info(f"post_comment: {post_url}")
             r = self._session.post(
                 post_url,
                 data={
@@ -62,16 +75,16 @@ class Bugzilla(object):
             )
             r.raise_for_status()
         except Exception:
-            raise BugzillaError()
+            raise BugzillaError(f"Error occurred posting comment to {post_url}")
 
     def update_bug(self, bug, **kwargs):
         try:
             post_url = "%s/rest/bug/%d" % (self._server, bug)
+            logger.info(f"update_bug: {post_url}")
             r = self._session.put(
                 post_url,
                 data=json.dumps(kwargs),
                 headers={"Content-Type": "application/json"},
             )
-            r.raise_for_status()
         except Exception:
-            raise BugzillaError()
+            raise BugzillaError(f"Error occurred updating bug {post_url}")
