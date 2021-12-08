@@ -86,5 +86,6 @@ class Bugzilla(object):
                 data=json.dumps(kwargs),
                 headers={"Content-Type": "application/json"},
             )
+            r.raise_for_status()
         except Exception:
             raise BugzillaError(f"Error occurred updating bug {post_url}")
