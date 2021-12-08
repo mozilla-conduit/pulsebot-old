@@ -20,7 +20,6 @@ from pulsebot.bugzilla import (
 )
 from pulsebot.pulse_hgpushes import PulseHgPushes
 from pulsebot.config import DispatchConfig
-import logging
 
 
 logger = logging.getLogger(__name__)
