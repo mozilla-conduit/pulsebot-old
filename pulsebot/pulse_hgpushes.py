@@ -41,7 +41,7 @@ class PulseHgPushes(PulseListener):
             if not pushes:
                 return
         except Exception:
-            logger.exception(f"Failure on {push_url}")
+            logger.exception("Failure on retrieving payload data from pulse_message")
             return
 
         for push in pushes:
