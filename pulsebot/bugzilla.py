@@ -33,11 +33,15 @@ class Bugzilla(object):
             r.raise_for_status()
             bug_data = r.json()
         except Exception:
-            logger.error(f"Error occurred retrieving bug fields {bug_url}")
+            logger.exception(
+                f"Error occurred retrieving bug fields {bug_url} {r.status_code}"
+            )
             raise BugzillaError()
 
         if "error" in bug_data:
-            logger.error(f"Error occurred retrieving bug fields {bug_url}")
+            logger.exception(
+                f"Error occurred retrieving bug fields {bug_url} {bug_data['error']}"
+            )
             raise BugzillaError()
 
         return bug_data.get("bugs", [{}])[0]
@@ -50,13 +54,15 @@ class Bugzilla(object):
             r = self._session.get(bug_url)
             r.raise_for_status()
             bug_data = r.json()
-        except Exception as error:
-            logger.error(f"Error occurred retrieving comments for {bug_url} {error}")
+        except Exception:
+            logger.exception(
+                f"Error occurred retrieving comments for {bug_url} {r.status_code}"
+            )
             raise BugzillaError()
 
         if "error" in bug_data:
-            logger.error(
-                f"Error occurred retrieving comments for {bug_url} {bug_data.error}"
+            logger.exception(
+                f"Error occurred retrieving comments for {bug_url} {bug_data['error']}"
             )
             raise BugzillaError()
 
@@ -75,7 +81,9 @@ class Bugzilla(object):
             )
             r.raise_for_status()
         except Exception:
-            logger.error(f"Error occurred posting comment to {post_url}")
+            logger.exception(
+                f"Error occurred posting comment to {post_url} {r.status_code}"
+            )
             raise BugzillaError()
 
     def update_bug(self, bug, **kwargs):
@@ -89,5 +97,5 @@ class Bugzilla(object):
             )
             r.raise_for_status()
         except Exception:
-            logging.error(f"Error occurred updating bug {post_url}")
+            logging.exception(f"Error occurred updating bug {post_url} {r.status_code}")
             raise BugzillaError()

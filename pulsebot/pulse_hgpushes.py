@@ -34,25 +34,26 @@ class PulseHgPushes(PulseListener):
     @staticmethod
     def get_pushes_info(pulse_message):
         # Sanity checks
-        logger.info('get_pushes_info')
+        logger.info("get_pushes_info")
         try:
             payload = pulse_message.get("payload", {})
             pushes = payload.get("pushlog_pushes")
             if not pushes:
                 return
         except Exception:
+            logger.exception(f"Failure on {push_url}")
             return
 
         for push in pushes:
             push_url = push.get("push_full_json_url")
             if not push_url:
                 continue
-            logger.info(f'get_push_info_from: {push_url}')
+            logger.info(f"get_push_info_from: {push_url}")
             try:
                 for data in PulseHgPushes.get_push_info_from(push_url):
                     yield data
             except Exception:
-                logger.error("Failure on %s", push_url)
+                logger.exception(f"Failure on {push_url}")
                 for line in traceback.format_exc().splitlines():
                     logger.debug(line)
                 logger.debug("Message data was: %r", pulse_message)
@@ -62,11 +63,12 @@ class PulseHgPushes(PulseListener):
     def get_push_info_from(push_url):
         repo = push_url[: push_url.rindex("/")]
         r = requests.get(push_url)
-        if r.status_code == 500:
-            # If we got an error 500, try again once.
+        if r.status_code != requests.codes.ok:
+            # If we were not successful, try again once.
             r = requests.get(push_url)
-        if r.status_code != 200:
-            r.raise_for_status()
+        if r.status_code != requests.codes.ok:
+            logger.exception(f"Failure getting {push_url} {r.status_code}")
+            return
 
         data = r.json(object_pairs_hook=OrderedDict)
 

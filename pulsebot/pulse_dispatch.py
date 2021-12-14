@@ -300,9 +300,7 @@ class PulseDispatcher(object):
                         else:
                             self.bugzilla.post_comment(info.bug, message)
                 except Exception:
-                    logging.getLogger("pulsebot.buzilla").error(
-                        "Failed to send comment to bug %d", info.bug
-                    )
+                    logger.exception(f"Failed to send comment to bug {info.bug}")
 
     def shutdown(self):
         self.hgpushes.shutdown()
