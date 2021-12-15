@@ -65,9 +65,12 @@ class PulseHgPushes(PulseListener):
         r = requests.get(push_url)
         if r.status_code != requests.codes.ok:
             # If we were not successful, try again once.
+            logger.info(
+                f"Failure getting {push_url} {r.status_code}...trying once more"
+            )
             r = requests.get(push_url)
         if r.status_code != requests.codes.ok:
-            logger.exception(f"Failure getting {push_url} {r.status_code}")
+            logger.error(f"Failure getting {push_url} {r.status_code}")
             return
 
         data = r.json(object_pairs_hook=OrderedDict)

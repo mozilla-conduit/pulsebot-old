@@ -39,7 +39,7 @@ class Bugzilla(object):
             raise BugzillaError()
 
         if "error" in bug_data:
-            logger.exception(
+            logger.error(
                 f"Error occurred retrieving bug fields {bug_url} {bug_data['error']}"
             )
             raise BugzillaError()
@@ -61,7 +61,7 @@ class Bugzilla(object):
             raise BugzillaError()
 
         if "error" in bug_data:
-            logger.exception(
+            logger.error(
                 f"Error occurred retrieving comments for {bug_url} {bug_data['error']}"
             )
             raise BugzillaError()
